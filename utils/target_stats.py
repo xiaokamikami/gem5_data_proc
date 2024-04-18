@@ -66,63 +66,41 @@ xs_pf_targets = {
 topdown_targets = {}
 
 LievenStalls = [
-        # NoStall,  // Base
-        # IcacheStall,  // F
-        # ITlbStall,  // F
-        # DTlbStall,  // B
-        # BpStall,  // BS, bad speculation: Frontend is squashed
-        # IntStall,  // F
-        # TrapStall,  // F
-        # FragStall,  // F
-        # SquashStall,  // BS
-        # FetchBufferInvalid,  // Never used
-        # InstMisPred,  // BS
-        # InstSquashed,  // BS
-        # SerializeStall,  // F
-        # LongExecute,  // B
-        # InstNotReady,  // B
+    'NoStall',
+    'IcacheStall',
+    'ITlbStall',
+    'DTlbStall',
+    'BpStall',
+    'IntStall',
+    'TrapStall',
+    'FragStall',
+    'SquashStall',
+    'FetchBufferInvalid',
+    'InstMisPred',
+    'InstSquashed',
+    'SerializeStall',
+    'LongExecute',
+    'InstNotReady',
 
-        # LoadL1Bound,
-        # LoadL2Bound,
-        # LoadL3Bound,
-        # LoadMemBound,
-        # StoreL1Bound,
-        # StoreL2Bound,
-        # StoreL3Bound,
-        # StoreMemBound,
+    'LoadL1Bound',
+    'LoadL2Bound',
+    'LoadL3Bound',
+    'LoadMemBound',
+    'StoreL1Bound',
+    'StoreL2Bound',
+    'StoreL3Bound',
+    'StoreMemBound',
+    'MemSquashed',
+    'MemNotReady',
+    'MemCommitRateLimit',
+    'Atomic',
+    'OtherMemStall',
 
-        # ResumeUnblock,  // B
-        # CommitSquash,  // BS
-        # OtherStall,  // B
-        # OtherFetchStall,  // F
-
-        'NoStall',
-        'IcacheStall',
-        'ITlbStall',
-        'DTlbStall',
-        'BpStall',
-        'IntStall',
-        'TrapStall',
-        'FragStall',
-        'SquashStall',
-        'FetchBufferInvalid',
-        'InstMisPred',
-        'InstSquashed',
-        'SerializeStall',
-        'LongExecute',
-        'InstNotReady',
-        'LoadL1Bound',
-        'LoadL2Bound',
-        'LoadL3Bound',
-        'LoadMemBound',
-        'StoreL1Bound',
-        'StoreL2Bound',
-        'StoreL3Bound',
-        'StoreMemBound',
-        'ResumeUnblock',
-        'CommitSquash',
-        'OtherStall',
-        'OtherFetchStall',
+    'ReadyButNotIssued',
+    'ResumeUnblock',
+    'CommitSquash',
+    'OtherStall',
+    'OtherFetchStall',
     ]
 
 def add_topdown_targets():
