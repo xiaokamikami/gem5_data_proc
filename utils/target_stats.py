@@ -299,3 +299,18 @@ def add_nanhu_multicore_ipc_targets(n):
     for core in range(1, n):
         xs_ipc_target[f'commitInstr{core}'] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2_{}.core\.ctrlBlock\.rob: commitInstr,\s+(\d+)".format(core)
         xs_ipc_target[f'total_cycles{core}'] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2_{}.core\.ctrlBlock\.rob: clock_cycle,\s+(\d+)".format(core)
+
+rvv_targets = {
+    'unitStrideCrossed': 'system\.cpu\.lsq0\.unitStrideCross16Byte',
+    'segUnitStrideNF=4': 'system\.cpu\.commit\.segUnitStrideNF::4',
+    'segUnitStrideNF=6': 'system\.cpu\.commit\.segUnitStrideNF::6',
+}
+
+for vec_inst_type in ['UnitStrideLoad', 'SegUnitStrideLoad', 'UnitStrideStore', 'SegUnitStrideStore',
+                      'UnitStrideMaskLoad', 'SegUnitStrideMaskLoad' 'UnitStrideMaskStore',
+                      'StridedLoad', 'SegStridedLoad', 'StridedStore',
+                      'IndexedLoad', 'SegIndexedLoad', 'IndexedStore',
+                      'UnitStrideFaultOnlyFirstLoad', 'WholeRegisterLoad', 'WholeRegisterStore',
+                      'IntegerArith', 'FloatArith', 'FloatConvert', 'IntegerReduce', 'FloatReduce', 'Misc',
+                      'IntegerExtension', 'Config']:
+    rvv_targets[f'{vec_inst_type}'] = f"system\.cpu\.commit\.committedInstType_0::Vector{vec_inst_type}"
