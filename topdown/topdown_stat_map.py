@@ -6,7 +6,8 @@ gem5_coarse_rename_map = {
     'NoStall': 'MergeBase',
 
     # Core
-    'LongExecute': 'MergeCore',
+    'ScalarLongExecute': 'MergeCore',
+    'VectorLongExecute': 'MergeCore',
     'InstNotReady': 'MergeCore',
 
     # Memory
@@ -103,7 +104,8 @@ gem5_fine_grain_rename_map = {
     'NoStall': None,
 
     # Core
-    'LongExecute': None,
+    'ScalarLongExecute': None,
+    'VectorLongExecute': None,
     'InstNotReady': None,
 
     # Memory
@@ -154,7 +156,9 @@ xs_fine_grain_rename_map = {
     'BTBMissBubble': 'MergeBadSpecBubble',
     'FetchFragBubble': 'FragmentBubble',
 
-    'DivStall': 'LongExecute',
+    'DivStall': 'MergeLongExecute',
+    'ScalarLongExecute': 'MergeLongExecute',
+    'VectorLongExecute': 'MergeLongExecute',
     'IntNotReadyStall': 'MergeInstNotReady',
     'FPNotReadyStall': 'MergeInstNotReady',
 

@@ -79,7 +79,8 @@ LievenStalls = [
     'InstMisPred',
     'InstSquashed',
     'SerializeStall',
-    'LongExecute',
+    'ScalarLongExecute',
+    'VectorLongExecute',
     'InstNotReady',
 
     'LoadL1Bound',
