@@ -37,9 +37,11 @@ def add_eval_targets(opt, targets: dict):
         stat_targets = opt.eval_stat.split('#')
         for stat_target in stat_targets:
             if opt.xiangshan:
-                targets = targets.update(eval('xs_'+stat_target))
+                print("Adding eval target: xs_", stat_target)
+                targets.update(eval('xs_'+stat_target))
             else:
-                targets = targets.update(eval(stat_target))
+                print("Adding eval target:", stat_target)
+                targets.update(eval(stat_target))
         print(targets)
 
 
@@ -224,7 +226,7 @@ def main():
 
             if opt.eval_stat is not None:
                 if 'mem_targets' in opt.eval_stat:
-                    c.add_mem_bw(d)
+                    eval(f"c.{prefix}add_mem_bw(d)")
                 if 'pf_targets' in opt.eval_stat:
                     eval(f'c.{prefix}add_pf_accuracy(d)')
                 if 'rvv_targets' in opt.eval_stat:

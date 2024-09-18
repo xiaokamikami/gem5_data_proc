@@ -134,6 +134,12 @@ xs_ipc_target = {
     "commitInstr": fr"{xs_ctrl_block_prefix}.rob: commitInstr,\s+(\d+)",
     "total_cycles": fr"{xs_ctrl_block_prefix}.rob: clock_cycle,\s+(\d+)",
 }
+
+xs_mem_dep_targets = {
+    'depLoads': fr'{xs_ctrl_block_prefix}\.dispatch: storeset_load_wait,\s+(\d+)',
+    'confLoads': fr'{xs_core_prefix}\.memBlock.lsq.loadQueue.loadQueueRAW: stld_rollback,\s+(\d+)',
+}
+
 # align
 xs_topdown_targets = {
     'NoStall': fr'{xs_ctrl_block_prefix}\.dispatch: NoStall,\s+(\d+)',
@@ -208,8 +214,6 @@ xs_topdown_targets_deprecated = {
     "ifu2id_allNO_cycle": fr"{xs_core_prefix}ctrlBlock.decode: ifu2id_allNO_cycle,\s+(\d+)",
 }
 
-xs_mem_dep_targets = {
-}
 
 xs_branch_targets = {
     'BpInstr':  r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.frontend\.ftq: BpInstr,\s+(\d+)",
@@ -267,11 +271,20 @@ def add_xs_l3_targets():
         xs_cache_targets['l3b{}_hit'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt\.slices_{}.directory: selfdir_A_hit,\s+(\d+)".format(bank)
         xs_cache_targets['l3b{}_recv_pref'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt\.slices_{}\.a_req_buffer: recv_prefetch,\s+(\d+)".format(bank)
 
-
 add_nanhu_l1_dcache_targets()
 # add_nanhu_l2_targets()
 add_kmh_l2_targets()
 add_xs_l3_targets()
+
+xs_mem_targets = {}
+
+def add_xs_mem_bw_targets():
+    xs_mem_targets['l3_bus_acq'] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\." + \
+            r"socMisc.busPMU: L3_Mem_L3_bank_0_D_channel_GrantData_fire,\s+(\d+)"
+    xs_mem_targets['l3_bus_rel'] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\." + \
+            r"socMisc.busPMU: L3_Mem_L3_bank_0_C_channel_ReleaseData_fire,\s+(\d+)"
+
+add_xs_mem_bw_targets()
 
 def add_nanhu_multicore_ipc_targets(n):
     #add instr and clocks for other cores

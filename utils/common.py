@@ -624,6 +624,13 @@ def xs_add_cache_mpki(d: dict) -> None:
         d.pop(f'l1d_{load_pipeline}_acc')
     d[f'L1D.MPKI'] = d[f'L1D.miss'] / d['commitInstr'] * 1000
 
+def xs_add_mem_bw(d: dict) -> None:
+    d['DRAM read Bytes'] = d['l3_bus_acq'] * 32  # 32 byte for each beat
+    d['DRAM write Bytes'] = d['l3_bus_rel'] * 32
+    clock_rate = 3e9
+    d['DRAM read MBytes/s'] = d['DRAM read Bytes'] / d['total_cycles'] / 1024 / 1024 * clock_rate
+    d['DRAM total MBytes/s'] = (d['DRAM read Bytes'] + d['DRAM write Bytes']) / d['total_cycles'] / 1024 / 1024 * clock_rate
+
 topdown_filter = [
     'layer1_frontend_bound',
     'layer1_bad_speculation',
