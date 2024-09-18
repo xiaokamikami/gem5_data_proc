@@ -27,10 +27,25 @@ Use `batch.py` to extract XS's cache & branch performance counters:
 ``` shell
 batch.py -s /path/to/results/top/directory --cache --branch --xiangshan -f simulator_err.txt
 ```
+# Example for eval targets
 
-Use `batch.py` to extract GEM5's memory bandwidth:
+The `eval targets` trick makes use of Python's `eval` to avoid creating new options for every new stat group
+
+Use eval target to extract GEM5's memory bandwidth:
 ``` shell
 batch.py -s /path/to/results/top/directory --eval-stat mem_targets
+```
+
+Using eval target to extract GEM5's memory bandwidth and memory dependency counters:
+
+``` shell
+batch.py -s /path/to/results/top/directory --eval-stat mem_targets#mem_dep_targets
+```
+
+Using eval target to extract XS's memory bandwidth and memory dependency counters:
+
+``` shell
+batch.py -s /path/to/results/top/directory -X --eval-stat mem_targets#mem_dep_targets
 ```
 
 # Compute weighted performance
