@@ -25,9 +25,9 @@ cache_targets = {
     'l3_miss_l2_pref': 'l3\.demandMisses::l2\.prefetcher',
     'l3_miss': 'l3\.demandMisses::total',
 
-    'l2_acc': 'l2\.demandAccesses::total',
-    'l2_miss': 'l2\.demandMisses::total',
-    'l2_miss_l1d_pref': 'l2\.demandMisses::cpu\.dcache\.prefetcher',
+    'l2_acc': 'l2_caches\.demandAccesses::total',
+    'l2_miss': 'l2_caches\.demandMisses::total',
+    'l2_miss_l1d_pref': 'l2_caches\.demandMisses::cpu\.dcache\.prefetcher',
     
     'dcache_miss': 'cpu\.dcache\.demandMisses::total',
 }
