@@ -260,7 +260,10 @@ def main():
 
     df = df.fillna(0)
 
-    print(df)
+    if df.shape[0] > 1:
+        print(df)
+    else:
+        print(df.iloc[0])
 
     if opt.output:
         df.to_csv(opt.output, index=True)
