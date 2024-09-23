@@ -20,7 +20,9 @@ icache_targets = {
 
 cache_targets = {
     'l3_acc_l2_pref': 'l3\.demandAccesses::l2\.prefetcher',
+    'l3_acc_l1_pref': 'l3\.demandAccesses::cpu\.dcache\.prefetcher',
     'l3_acc': 'l3\.demandAccesses::total',
+
     'l3_miss_l1d_pref': 'l3\.demandMisses::cpu\.dcache\.prefetcher',
     'l3_miss_l2_pref': 'l3\.demandMisses::l2\.prefetcher',
     'l3_miss': 'l3\.demandMisses::total',
@@ -30,6 +32,7 @@ cache_targets = {
     'l2_miss_l1d_pref': 'l2_caches\.demandMisses::cpu\.dcache\.prefetcher',
     
     'dcache_miss': 'cpu\.dcache\.demandMisses::total',
+    # 'dcache_miss_pref': 'cpu\.dcache\.demandMisses::cpu.dcache.prefetcher',
 }
 
 si_targets = {
@@ -126,6 +129,7 @@ branch_targets = {
 }
 
 
+xs_l2_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.l2top\.l2cache"
 xs_l3_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt"
 xs_core_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core"
 xs_ctrl_block_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.(?:backend\.)?ctrlBlock"
@@ -258,18 +262,27 @@ def add_nanhu_l2_targets():
         xs_cache_targets['l2b{}_hit'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.l2cache\.slices_{}.directory: selfdir_A_hit,\s+(\d+)".format(bank)
         xs_cache_targets['l2b{}_recv_pref'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.l2cache\.slices_{}\.a_req_buffer: recv_prefetch,\s+(\d+)".format(bank)
 
+xs_mem_acc_sources = ['CPUInst', 'CPULoadData', 'CPUStoreData', 'CPUAtomicData', 'L1InstPrefetch',
+                      'L1DataPrefetch', 'PTW', 'Prefetch2L2BOP', 'Prefetch2L2PBOP', 'Prefetch2L2SMS',
+                      'Prefetch2L2Stream', 'Prefetch2L2Stride', 'Prefetch2L2TP', 'Prefetch2L2Unknown',
+                      'Prefetch2L3Unknown']
 
 def add_kmh_l2_targets():
-    xs_cache_targets.update({
-        'l2_load_acc': r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.(?:l2top\.)?l2cache\.topDown: E2_L2AReqSource_CPULoadData_Total,\s+(\d+)",
-        'l2_load_miss': r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.(?:l2top\.)?l2cache\.topDown: E2_L2AReqSource_CPULoadData_Miss,\s+(\d+)",
-    })
+    for counter in ['Total', 'Miss']:
+        for source in xs_mem_acc_sources:
+            xs_cache_targets[f'l2_{source}_{counter}'] = fr"{xs_l2_prefix}\.topDown: E2_L2AReqSource_{source}_{counter},\s+(\d+)"
     
 def add_xs_l3_targets():
+    for counter in ['Total', 'Miss']:
+        for source in xs_mem_acc_sources:
+            xs_cache_targets[f'l3_{source}_{counter}'] = fr"{xs_l3_prefix}\.topDown: E2_L3AReqSource_{source}_{counter},\s+(\d+)"
+
     for bank in range(4):
-        xs_cache_targets['l3b{}_acc'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt\.slices_{}.directory: selfdir_A_req,\s+(\d+)".format(bank)
-        xs_cache_targets['l3b{}_hit'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt\.slices_{}.directory: selfdir_A_hit,\s+(\d+)".format(bank)
-        xs_cache_targets['l3b{}_recv_pref'.format(bank)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt\.slices_{}\.a_req_buffer: recv_prefetch,\s+(\d+)".format(bank)
+        xs_cache_targets[f'l3_bank_{bank}_acc'] = fr"{xs_l3_prefix}\.slices_{bank}\.directory: selfdir_A_req,\s+(\d+)"
+        xs_cache_targets[f'l3_bank_{bank}_hit'] = fr"{xs_l3_prefix}\.slices_{bank}\.directory: selfdir_A_hit,\s+(\d+)"
+        # xs_cache_targets[f'l3_bank_{bank}_recv_pref'] = fr"{xs_l3_prefix}\.slices_{bank}\.a_req_buffer: recv_prefetch,\s+(\d+)"
+        # xs_cache_targets[f'l3_bank_{bank}_recv_normal'] = fr"{xs_l3_prefix}\.slices_{bank}\.a_req_buffer: recv_normal,\s+(\d+)"
+
 
 add_nanhu_l1_dcache_targets()
 # add_nanhu_l2_targets()

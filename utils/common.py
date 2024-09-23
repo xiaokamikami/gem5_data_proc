@@ -548,81 +548,73 @@ def xs_add_branch_mispred(d: dict) -> None:
     # d['return MPKI'] = float(d['RASIncorrect']) / float(d['Insts']) * 1000
 
 def add_cache_mpki(d: dict) -> None:
-    d['L1D.MPKI'] = float(d.get('dcache_miss', 0.0)) / float(d['Insts']) * 1000
+    d['l1d.data.miss'] = d['dcache_miss'] - d.get('dcache_miss_pref', 0)
+    # d['l1d.overall.MPKI'] = d['dcache_miss'] / d['Insts'] * 1000
+    d['l1d.data.MPKI'] = d['l1d.data.miss'] / d['Insts'] * 1000
+    # d['l1d.pref.MPKI'] = d.get('dcache_miss_pref', 0) / d['Insts'] * 1000
 
-    d['L2.MPKI'] = float(d.get('l2_miss', 0.0)) / float(d['Insts']) * 1000
-    d['L2.NonPref.Miss'] = float(d.get('l2_miss', 0.0) - d.get('l2_miss_l1d_pref', 0.0))
-    d['L2.NonPref.MPKI'] = d['L2.NonPref.Miss'] / float(d['Insts']) * 1000
+    d['l2.overall.MPKI'] = d.get('l2_miss', 0.0) / d['Insts'] * 1000
+    d['l2.data.miss'] = d.get('l2_miss', 0.0) - d.get('l2_miss_l1d_pref', 0.0)
+    d['l2.data.MPKI'] = d['l2.data.miss'] / d['Insts'] * 1000
 
     
-    d['L3.NonPrefAcc'] = float(d.get('l3_acc', 0.0) - d.get('l3_acc_l2_pref', 0.0))
-    d['L3.NonPrefMiss'] = float(d.get('l3_acc', 0.0) \
-            - d.get('l3_miss_l2_pref', 0.0) - d.get('l3_miss_l1d_pref', 0.0) )
+    d['l3.data.acc'] = d.get('l3_acc', 0.0) - d.get('l3_acc_l2_pref', 0.0) - d.get('l3_acc_l1_pref', 0.0)
+    d['l3.data.miss'] = d.get('l3_acc', 0.0) \
+            - d.get('l3_miss_l2_pref', 0.0) - d.get('l3_miss_l1d_pref', 0.0)
 
-    d.pop('l2_acc_l1d_pref', None)
-    d.pop('l3_miss_l1d_pref', None)
-    d.pop('l3_acc_l2_pref', None)
-    d.pop('l3_miss_l2_pref', None)
+    # d.pop('l2_acc_l1d_pref', None)
+    # d.pop('l3_miss_l1d_pref', None)
+    # d.pop('l3_acc_l2_pref', None)
+    # d.pop('l3_miss_l2_pref', None)
 
-    d['L3.NonPref.MPKI'] = float(d.get('L3.NonPrefMiss', 0.0)) / float(d['Insts']) * 1000
+    d['l3.data.MPKI'] = float(d.get('l3.data.miss', 0.0)) / float(d['Insts']) * 1000
 
 
 def xs_add_cache_mpki(d: dict) -> None:
     # L2/L3
-    n_banks = 4
-    version = None
-    if 'l2_load_miss' in d:  # kmh
-        print('Using latest xs, kmh')
-        version = 'kmh'
-        d['l2_load_hit'] = d['l2_load_acc'] - d['l2_load_miss']
+    for lv in ['l2', 'l3']:
+        d[f'{lv}.data.miss'] = d[f'{lv}_CPULoadData_Miss'] + d[f'{lv}_CPUStoreData_Miss'] + d[f'{lv}_CPUAtomicData_Miss']
+        d[f'{lv}.data.acc'] = d[f'{lv}_CPULoadData_Total'] + d[f'{lv}_CPUStoreData_Total'] + d[f'{lv}_CPUAtomicData_Total']
+        d[f'{lv}.pref.miss'] = d[f'{lv}_L1InstPrefetch_Miss'] + d[f'{lv}_L1DataPrefetch_Miss'] + d[f'{lv}_Prefetch2L2BOP_Miss'] + \
+            d[f'{lv}_Prefetch2L2SMS_Miss'] + d[f'{lv}_Prefetch2L2Stream_Miss'] + d[f'{lv}_Prefetch2L2Stride_Miss'] + \
+            d[f'{lv}_Prefetch2L2TP_Miss'] + d[f'{lv}_Prefetch2L2Unknown_Miss']  + d[f'{lv}_Prefetch2L3Unknown_Miss']
+        d[f'{lv}.pref.acc'] = d[f'{lv}_L1InstPrefetch_Total'] + d[f'{lv}_L1DataPrefetch_Total'] + d[f'{lv}_Prefetch2L2BOP_Total'] + \
+            d[f'{lv}_Prefetch2L2SMS_Total'] + d[f'{lv}_Prefetch2L2Stream_Total'] + d[f'{lv}_Prefetch2L2Stride_Total'] + \
+            d[f'{lv}_Prefetch2L2TP_Total'] + d[f'{lv}_Prefetch2L2Unknown_Total']  + d[f'{lv}_Prefetch2L3Unknown_Total']
 
-        for cache in ['l3']:
-            d[f'{cache}_acc'] = 0
-            d[f'{cache}_hit'] = 0
-            for i in range(n_banks):  # TODO remove hardcode
-                d[f'{cache}_acc'] += d[f'{cache}b{i}_acc']
-                d.pop(f'{cache}b{i}_acc')
-                d[f'{cache}_hit'] += d[f'{cache}b{i}_hit']
-                d.pop(f'{cache}b{i}_hit')
-                d.pop(f'{cache}b{i}_recv_pref')
+        d[f'{lv}.data.MPKI'] = d[f'{lv}.data.miss'] / d['commitInstr'] * 1000
+        d[f'{lv}.pref.MPKI'] = d[f'{lv}.pref.miss'] / d['commitInstr'] * 1000
 
-    elif 'l2_acc' not in d:  # nanhu
-        version = 'nanhu'
-        print('Using nanhu')
-        for cache in ['l2', 'l3']:
-            d[f'{cache}_acc'] = 0
-            d[f'{cache}_hit'] = 0
-            d[f'{cache}_recv_pref'] = 0
-            for i in range(n_banks):  # TODO remove hardcode
-                d[f'{cache}_acc'] += d[f'{cache}b{i}_acc']
-                d.pop(f'{cache}b{i}_acc')
-                d[f'{cache}_hit'] += d[f'{cache}b{i}_hit']
-                d.pop(f'{cache}b{i}_hit')
-                d[f'{cache}_recv_pref'] += d[f'{cache}b{i}_recv_pref']
-                d.pop(f'{cache}b{i}_recv_pref')
-    else:
-        print('Using old nanhu')
-        version = 'old_nanhu'
+    for lv in ['l3']:
+        d[f'{lv}.overall.hit'] = 0
+        d[f'{lv}.overall.acc'] = 0
+        for bank in range(4):
+            d[f'{lv}.overall.hit'] += d[f'{lv}_bank_{bank}_hit']
+            d[f'{lv}.overall.acc'] += d[f'{lv}_bank_{bank}_acc']
+            d.pop(f'{lv}_bank_{bank}_hit', None)
+            d.pop(f'{lv}_bank_{bank}_acc', None)
 
-    if version == 'kmh':
-        for cache in ['l3']:
-            d[f'{cache.upper()}.overallMiss'] = d[f'{cache}_acc'] - d[f'{cache}_hit']
-            d[f'{cache.upper()}.overallMPKI'] = d[f'{cache.upper()}.overallMiss'] / (d[f'{cache}_acc'] + 1)
-            d.pop(f'{cache}_hit')
-        for cache in ['l2']:
-            d[f'{cache.upper()}_load_MPKI'] = d[f'{cache}_load_miss'] / d['commitInstr'] * 1000
-    else:
-        raise Exception(f'Not implemented for {version}')
+            # d[f'{lv}.overall.normal'] += d[f'{lv}_bank_{bank}_recv_normal']
+            # d[f'{lv}.overall.pref'] += d[f'{lv}_bank_{bank}_recv_pref']
+
+
+        d[f'{lv}.overall.miss'] = d[f'{lv}.overall.acc'] - d[f'{lv}.overall.hit']
+        d[f'{lv}.overall.MPKI'] = d[f'{lv}.overall.miss'] / d['commitInstr'] * 1000
+
+    for lv in ['l2', 'l3']:
+        for src in t.xs_mem_acc_sources:
+            d.pop(f'{lv}_{src}_Total', None)
+            d.pop(f'{lv}_{src}_Miss', None)
 
     # L1D
-    d[f'L1D.miss'] = 0
-    d[f'L1D.acc'] = 0
+    d[f'l1d.miss'] = 0
+    d[f'l1d.acc'] = 0
     for load_pipeline in range(2):  # TODO remove hardcode
-        d[f'L1D.miss'] += d[f'l1d_{load_pipeline}_miss']
+        d[f'l1d.miss'] += d[f'l1d_{load_pipeline}_miss']
         # d.pop(f'l1d_{load_pipeline}_miss')
-        d[f'L1D.acc'] += d[f'l1d_{load_pipeline}_acc']
+        d[f'l1d.acc'] += d[f'l1d_{load_pipeline}_acc']
         d.pop(f'l1d_{load_pipeline}_acc')
-    d[f'L1D.MPKI'] = d[f'L1D.miss'] / d['commitInstr'] * 1000
+    d[f'l1d.MPKI'] = d[f'l1d.miss'] / d['commitInstr'] * 1000
 
 def xs_add_mem_bw(d: dict) -> None:
     d['DRAM read Bytes'] = d['l3_bus_acq'] * 32  # 32 byte for each beat
