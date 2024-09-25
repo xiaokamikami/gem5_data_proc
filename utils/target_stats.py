@@ -129,10 +129,10 @@ branch_targets = {
 }
 
 
-xs_l2_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.l2top\.l2cache"
+xs_l2_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.l2top\.inner_l2cache"
 xs_l3_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.l3cacheOpt"
 xs_core_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core"
-xs_ctrl_block_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.(?:backend\.)?ctrlBlock"
+xs_ctrl_block_prefix = "\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.(?:backend\.)?inner_ctrlBlock"
 
 xs_ipc_target = {
     "commitInstr": fr"{xs_ctrl_block_prefix}.rob: commitInstr,\s+(\d+)",
@@ -252,8 +252,8 @@ xs_cache_targets = {
 
 def add_nanhu_l1_dcache_targets():
     for load_pipeline in range(2):
-        xs_cache_targets['l1d_{}_miss'.format(load_pipeline)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.memBlock\.LoadUnit_{}: s2_dcache_miss_first_issue,\s+(\d+)".format(load_pipeline)
-        xs_cache_targets['l1d_{}_acc'.format(load_pipeline)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.memBlock\.LoadUnit_{}: s2_in_fire_first_issue,\s+(\d+)".format(load_pipeline)
+        xs_cache_targets['l1d_{}_miss'.format(load_pipeline)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.memBlock\.inner_LoadUnit_{}: s2_dcache_miss_first_issue,\s+(\d+)".format(load_pipeline)
+        xs_cache_targets['l1d_{}_acc'.format(load_pipeline)] = r"\[PERF \]\[time=\s+\d+\] TOP\.SimTop\.l_soc\.core_with_l2\.core\.memBlock\.inner_LoadUnit_{}: s2_in_fire_first_issue,\s+(\d+)".format(load_pipeline)
 
 
 def add_nanhu_l2_targets():
