@@ -41,16 +41,28 @@ def proc_input(wl_df: pd.DataFrame, js: dict, workload: str):
     try:
         vec_weight = vec_weight.loc[wl_df['point']]
     except KeyError:
-        print(wl_df)
+        # # 找出哪些 point 在 vec_weight 中缺失
+        # missing_points = set(wl_df['point']) - set(vec_weight.index)
+        
+        # # 为缺失的 point 创建一个新的 Series，值为 0
+        # missing_weights = pd.Series(0, index=missing_points)
+        
+        # # 将原有的 vec_weight 和缺失的权重合并
+        # vec_weight = pd.concat([vec_weight, missing_weights])
+        
+        # # 确保顺序与 wl_df['point'] 一致
+        # vec_weight = vec_weight.loc[wl_df['point']]
+        # print(f"{vec_weight.index}  set 0")
+        # 找出哪些 point 在 vec_weight 中存在
+        valid_points = set(wl_df['point']).intersection(set(vec_weight.index))
+        # 只保留有对应权重的行
+        wl_df = wl_df[wl_df['point'].isin(valid_points)]
+        vec_weight = vec_weight.loc[wl_df['point']]
         if 0 in wl_df['point'].values:
             print(f"Ignore checkpoint 0 for {workload}")
             wl_df = wl_df[wl_df['point'] != 0]
-            vec_weight = vec_weight.loc[wl_df['point']]
-        else:
-            print(f'KeyError: {workload}')
-            print(vec_weight)
-            print(wl_df['point'])
-            raise KeyError
+            vec_weight = vec_weight[vec_weight.index != 0]
+
     print(vec_weight.shape)
     # make their sum equals 1.0
     vec_weight.columns = ['weight']
