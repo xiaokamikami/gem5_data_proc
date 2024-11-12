@@ -18,7 +18,7 @@ def extract_info_from_log(file_path):
         IPC = float(match.group(3))
         #print(f"debug: instrCnt={instrCnt}, cycleCnt={cycleCnt}, IPC={IPC}")
     else:
-        print("not find performance data")
+        print("not find performance data to " + str(file_path))
 
     pattern = r'.*/checkpoint-0-0-0/([^/]+)/(\d+)/_\d+_([0-9.]+)_\.zstd'
     match = re.search(pattern, content)
@@ -51,3 +51,6 @@ def main():
                     program_name = f"{workload}_{point}"
                     bmk = workload.split('_')[0]
                     writer.writerow([program_name, workload, bmk, point, instrCnt, cycleCnt, IPC, weights])
+
+if __name__ == '__main__':
+    main()
